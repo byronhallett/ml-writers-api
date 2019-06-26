@@ -4,29 +4,27 @@ import os
 import numpy as np
 import tensorflow as tf
 
-import neural_net.model as model
-import neural_net.sample as sample
-import neural_net.encoder as encoder
+from neural_net.model import default_hparams
+from neural_net.sample import sample_sequence
+from neural_net.encoder import Encoder, get_encoder
 
 
 class State:
 
-    def __init__(self, session: tf.Session, output, encoder, context,
-                 length: int):
-        self.session = session
+    def __init__(self, session: tf.Session, output,
+                 encoder: Encoder, context):
+        self.session: tf.Session = session
         self.output = output
-        self.encoder = encoder
+        self.encoder: Encoder = encoder
         self.context = context
-        self.length = length
 
 
 def predict(state: State, input_text):
-    session, output, encoder, context = *state
-    context_tokens = encoder.encode(input_text)
-    out = session.run(output, feed_dict={
-        context: [context_tokens]
+    context_tokens = state.encoder.encode(input_text)
+    out = state.session.run(state.output, feed_dict={
+        state.context: [context_tokens]
     })[:, len(context_tokens):]
-    text = encoder.decode(out[0])
+    text = state.encoder.decode(out[0])
     return text
 
 
@@ -58,8 +56,8 @@ def interact_model(
     if batch_size is None:
         batch_size = 1
 
-    enc = encoder.get_encoder()
-    hparams = model.default_hparams()
+    enc = get_encoder()
+    hparams = default_hparams()
     with open(os.path.join('hparams.json')) as f:
         hparams.override_from_dict(json.load(f))
 
@@ -73,7 +71,7 @@ def interact_model(
         context = tf.placeholder(tf.int32, [batch_size, None])
         np.random.seed(seed)
         tf.set_random_seed(seed)
-        output = sample.sample_sequence(
+        output = sample_sequence(
             hparams=hparams, length=length,
             context=context,
             batch_size=batch_size,

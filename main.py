@@ -1,10 +1,11 @@
 from flask import Flask, request
-import tensorflow as tf
 import neural_net.generate as gen
 from download_model import download_model
+from neural_net.generate import State
+
 app = Flask(__name__)
 
-loaded_model: tf.Session = None
+loaded_model: State = None
 
 
 def load_model():
