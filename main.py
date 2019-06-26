@@ -8,6 +8,7 @@ app = Flask(__name__)
 loaded_model: State = None
 
 
+@app.before_request
 def load_model():
     global loaded_model
     if loaded_model is None:
@@ -17,10 +18,10 @@ def load_model():
 
 @app.route('/generate_from')
 def generate_from() -> str:
-    load_model()
     seed: str = request.args.get('seed')
     return "based on {}, I am your predicted output!".format(seed)
 
 
 if __name__ == '__main__':
+    # not used on app engine
     app.run(host='127.0.0.1', port=8080, debug=True)
