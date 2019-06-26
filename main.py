@@ -1,0 +1,25 @@
+from flask import Flask, request
+import tensorflow as tf
+import neural_net.generate as gen
+from download_model import download_model
+app = Flask(__name__)
+
+loaded_model: tf.Session = None
+
+
+def load_model():
+    global loaded_model
+    if loaded_model is None:
+        download_model()
+        loaded_model = gen.interact_model(length=32, temperature=0.8)
+
+
+@app.route('/generate_from')
+def generate_from() -> str:
+    load_model()
+    seed: str = request.args.get('seed')
+    return "based on {}, I am your predicted output!".format(seed)
+
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=8080, debug=True)

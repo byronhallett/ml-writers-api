@@ -7,7 +7,7 @@ pip3 install -r requirements.txt
 ```
 Download the model data from URI, eg
 ```
-python3 download_model.py https://storage.cloud.google.com/cl-syd-playground/blurb-blocks-data
+python3 download_model.py cl-syd-playground blurb-blocks-data
 ```
 
 # CONFIG
