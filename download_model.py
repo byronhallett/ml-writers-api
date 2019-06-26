@@ -17,6 +17,6 @@ def download_model(bucket_name=os.environ['BUCKET_NAME']):
     for filename in FILES:
         print("=== downloading " + filename, end='\r')
         blob = bucket.blob(filename)
-        blob.download_to_filename(filename)
+        blob.download_to_filename("/tmp/"+filename)
         print("=== Finished downloading ", filename)
 

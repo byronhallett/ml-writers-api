@@ -58,7 +58,7 @@ def interact_model(
 
     enc = get_encoder()
     hparams = default_hparams()
-    with open(os.path.join('hparams.json')) as f:
+    with open(os.path.join('/tmp/hparams.json')) as f:
         hparams.override_from_dict(json.load(f))
 
     if length is None:
@@ -79,7 +79,7 @@ def interact_model(
         )
 
         saver = tf.train.Saver()
-        ckpt = tf.train.latest_checkpoint('.')
+        ckpt = tf.train.latest_checkpoint('/tmp')
         saver.restore(sess, ckpt)
 
         return State(
