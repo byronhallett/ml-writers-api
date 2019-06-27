@@ -1,4 +1,4 @@
-import os
+from os import getenv
 from google.cloud import storage
 
 # CONSTS
@@ -11,7 +11,7 @@ FILES = [
 storage_client = storage.Client()
 
 
-def download_model(bucket_name=os.environ['BUCKET_NAME']):
+def download_model(bucket_name=getenv('BUCKET_NAME')):
     """Downloads model data from our bucket"""
     bucket = storage_client.get_bucket(bucket_name)
     for filename in FILES:

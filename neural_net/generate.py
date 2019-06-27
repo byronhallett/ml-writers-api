@@ -10,13 +10,18 @@ from neural_net.encoder import Encoder, get_encoder
 
 
 class State:
-
+    '''
+    A wrapper for tf related data, to simplify persistence
+    '''
     def __init__(self, session: tf.Session, output,
                  encoder: Encoder, context):
         self.session: tf.Session = session
         self.output = output
         self.encoder: Encoder = encoder
         self.context = context
+
+    def close_session(self):
+        self.session.close()
 
 
 def predict(state: State, input_text):
@@ -67,24 +72,24 @@ def interact_model(
         raise ValueError(
             "Can't get samples longer than window size: %s" % hparams.n_ctx)
 
-    with tf.Session(graph=tf.Graph()) as sess:
-        context = tf.placeholder(tf.int32, [batch_size, None])
-        np.random.seed(seed)
-        tf.set_random_seed(seed)
-        output = sample_sequence(
-            hparams=hparams, length=length,
-            context=context,
-            batch_size=batch_size,
-            temperature=temperature, top_k=top_k
-        )
+    sess = tf.Session()
+    context = tf.placeholder(tf.int32, [batch_size, None])
+    np.random.seed(seed)
+    tf.set_random_seed(seed)
+    output = sample_sequence(
+        hparams=hparams, length=length,
+        context=context,
+        batch_size=batch_size,
+        temperature=temperature, top_k=top_k
+    )
 
-        saver = tf.train.Saver()
-        ckpt = tf.train.latest_checkpoint('/tmp')
-        saver.restore(sess, ckpt)
+    saver = tf.train.Saver()
+    ckpt = tf.train.latest_checkpoint('/tmp')
+    saver.restore(sess, ckpt)
 
-        return State(
-            session=sess,
-            output=output,
-            encoder=enc,
-            context=context
-        )
+    return State(
+        session=sess,
+        output=output,
+        encoder=enc,
+        context=context
+    )

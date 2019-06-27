@@ -1,9 +1,9 @@
 runtime: python37
 
-instance_class: F2
-
 env_variables:
   BUCKET_NAME: "blurb-blocks-data"
+  SEED_LENGTH: "64"
+  TEMPERATURE: "0.8"
 
 handlers:
 - url: /.*
@@ -11,3 +11,6 @@ handlers:
   redirect_http_response_code: 301
   script: auto
 
+instance_class: B8
+manual_scaling:
+  instances: 1
