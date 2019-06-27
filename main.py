@@ -11,22 +11,28 @@ loaded_model: State = None
 
 @app.before_request
 def load_model():
-    global loaded_model
-    if loaded_model is None:
-        download_model(bucket_name=getenv('BUCKET_NAME'))
-        loaded_model = gen.interact_model(
-            length=int(getenv("SEED_LENGTH")),
-            temperature=float(getenv("TEMPERATURE")))
+    try:
+        global loaded_model
+        if loaded_model is None:
+            download_model(bucket_name=getenv('BUCKET_NAME'))
+            loaded_model = gen.interact_model(
+                length=int(getenv("SEED_LENGTH")),
+                temperature=float(getenv("TEMPERATURE")))
+    except Exception as e:
+        app.log_exception(e)
 
 
 @app.route('/predict')
 def predict_from_seed() -> str:
-    seed: str = request.args.get('seed')
-    prediction = predict(loaded_model, seed)
-    return jsonify({
-        "seed": seed,
-        "prediction": prediction
-    })
+    try:
+        seed: str = request.args.get('seed')
+        prediction = predict(loaded_model, seed)
+        return jsonify({
+            "seed": seed,
+            "prediction": prediction
+        })
+    except Exception as e:
+        app.log_exception(e)
 
 
 if __name__ == '__main__':
