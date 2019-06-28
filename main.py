@@ -1,8 +1,8 @@
 from os import getenv
 from flask import Flask, request, jsonify
-import neural_net.generate as gen
-from download_model import download_model
-from neural_net.generate import State, predict
+import modules.generate as gen
+from modules.download_model import download_model
+from modules.generate import State, predict
 
 app = Flask(__name__)
 

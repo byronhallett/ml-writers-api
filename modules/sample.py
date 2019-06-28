@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-import neural_net.model as model
+import modules.model as model
 
 
 def top_k_logits(logits, k):

@@ -4,9 +4,9 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from neural_net.model import default_hparams
-from neural_net.sample import sample_sequence
-from neural_net.encoder import Encoder, get_encoder
+from modules.model import default_hparams
+from modules.sample import sample_sequence
+from modules.encoder import Encoder, get_encoder
 
 
 class State:

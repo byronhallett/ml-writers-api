@@ -8,7 +8,7 @@ manual_scaling:
 
 
 env_variables:
-  BUCKET_NAME: "blurb-blocks-data"
+  BUCKET_NAME: "blurb-blocks"
   SEED_LENGTH: "64"
   TEMPERATURE: "0.8"
 
