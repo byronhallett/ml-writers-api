@@ -1,19 +1,22 @@
-runtime: python37
+runtime: python
+runtime_config:
+  python_version: 3.7
 
-entrypoint: uwsgi --http-socket :8080 --wsgi-file main.py --callable app --master --processes 1 --threads 1
+entrypoint: uwsgi --http-socket :$PORT --wsgi-file main.py --callable app --master --processes 1 --threads 2
 
-instance_class: B8
+env: flex
 manual_scaling:
   instances: 1
-
+resources:
+  cpu: 4
+  memory_gb: 24
+  disk_size_gb: 100
 
 env_variables:
   BUCKET_NAME: "blurb-blocks"
-  SEED_LENGTH: "64"
   TEMPERATURE: "0.8"
 
 handlers:
 - url: /.*
   secure: always
   script: auto
-

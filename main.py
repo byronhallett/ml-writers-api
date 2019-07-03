@@ -1,38 +1,47 @@
 from os import getenv
-from flask import Flask, request, jsonify
+from flask import Flask, request, Response
 import modules.generate as gen
-from modules.download_model import download_model
+# from modules.download_model import download_model
 from modules.generate import State, predict
+
+BATCH_LENGTH = 16
 
 app = Flask(__name__)
 
 loaded_model: State = None
 
 
-@app.before_request
 def load_model():
-    try:
-        global loaded_model
-        if loaded_model is None:
-            download_model(bucket_name=getenv('BUCKET_NAME'))
-            loaded_model = gen.interact_model(
-                length=int(getenv("SEED_LENGTH")),
-                temperature=float(getenv("TEMPERATURE")))
-    except Exception as e:
-        app.log_exception(e)
+    global loaded_model
+    if loaded_model is None:
+        # download_model(bucket_name=getenv('BUCKET_NAME'))
+        loaded_model = gen.interact_model(
+            length=int(BATCH_LENGTH),
+            temperature=float(getenv("TEMPERATURE")))
 
 
 @app.route('/predict')
 def predict_from_seed() -> str:
+    # Get user args
+
     try:
-        seed: str = request.args.get('seed')
-        prediction = predict(loaded_model, seed)
-        return jsonify({
-            "seed": seed,
-            "prediction": prediction
-        })
-    except Exception as e:
-        app.log_exception(e)
+        request_seed = request.args.get('seed')
+        length = int(request.args.get('length'))
+    except Exception:
+        return "please pass a seed (str) and length (int) param"
+    # Ensure we have the global model in mem
+    if loaded_model is None:
+        load_model()
+
+    # a nested generator for streamed results
+    def gen(req_seed):
+        seed: str = req_seed
+        for _ in range(length // BATCH_LENGTH):
+            prediction = predict(loaded_model, seed)
+            seed += prediction
+            yield prediction
+
+    return Response(gen(request_seed))
 
 
 if __name__ == '__main__':

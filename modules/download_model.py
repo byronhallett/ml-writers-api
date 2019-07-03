@@ -1,4 +1,6 @@
 from google.cloud import storage
+from os import getenv
+
 
 # CONSTS
 FILES = [
@@ -12,6 +14,7 @@ storage_client = storage.Client()
 
 def download_model(bucket_name):
     """Downloads model data from our bucket"""
+
     bucket = storage_client.get_bucket(bucket_name)
     for filename in FILES:
         print("=== downloading " + filename, end='\r')
@@ -19,3 +22,8 @@ def download_model(bucket_name):
         blob.download_to_filename("/tmp/"+filename)
         print("=== Finished downloading ", filename)
 
+
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+    load_dotenv()
+    download_model(bucket_name=getenv('BUCKET_NAME'))
