@@ -4,6 +4,7 @@ import modules.generate as gen
 from re import findall, escape
 from modules.download_model import download_model
 from modules.generate import State, predict
+from flask_cors.decorator import cross_origin
 
 BATCH_LENGTH = 8
 DEFAULT_LENGTH = 512
@@ -21,13 +22,14 @@ class Check:
 def load_model():
     global loaded_model
     if loaded_model is None:
-        download_model(bucket_name=getenv('BUCKET_NAME'))
+        download_model(bucket_name=getenv('BUCKET_NAME'), skip_if_exists=True)
         loaded_model = gen.interact_model(
             length=int(BATCH_LENGTH),
             temperature=float(getenv("TEMPERATURE")))
 
 
 @app.route('/predict')
+@cross_origin()
 def predict_from_seed() -> str:
     # Get user args and complain if incorrect
     r_seed = request.args.get('seed')
@@ -78,13 +80,12 @@ def predict_from_seed() -> str:
             stop_reason = "stop_char_found"
             # prediction = chars_check.sub_prediction
             break
-
-    # return info
-    return jsonify({
+    response = jsonify({
         "seed": r_seed,
         "prediction": prediction,
         "reason": stop_reason
     })
+    return response
 
 
 def check_stop_string(stop_string: str, prediction: str, count: int) -> Check:
