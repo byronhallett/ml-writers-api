@@ -19,7 +19,7 @@ def download_model(bucket_name: str, skip_if_exists: bool = False):
     for filename in FILES:
         print("=== downloading " + filename, end='\r')
         blob = bucket.blob(filename)
-        filepath = "/tmp/"+filename
+        filepath = "./"+filename
         # save startup time if we already have the file
         if skip_if_exists and path.exists(filepath):
             print("=== Skipped ", filename)
