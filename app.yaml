@@ -1,8 +1,12 @@
+# EDIT PER DEPLOYMENT
+service: blurb-blocks-api
+env_variables:
+  BUCKET_NAME: "blurb-blocks"
+  TEMPERATURE: "0.8"
+
 runtime: python
 runtime_config:
   python_version: 3.7
-
-service: ml-api
 
 entrypoint: uwsgi --http-socket :$PORT --wsgi-file main.py --callable app --master --processes 1 --threads 2
 
@@ -13,10 +17,6 @@ resources:
   cpu: 4
   memory_gb: 24
   disk_size_gb: 100
-
-env_variables:
-  BUCKET_NAME: "blurb-blocks"
-  TEMPERATURE: "0.8"
 
 handlers:
 - url: /.*

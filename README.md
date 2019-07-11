@@ -9,11 +9,6 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Forget about it, just push to gcloud in your project
-```sh
-gcloud app deploy --quiet --project cl-syd-ml-writers
-```
-
 ## CONFIG
 
 Locally, add a .env with
@@ -28,6 +23,11 @@ For gcloud app engine, edit the **app.yaml**
 ## GAE flex deployment
 
 ## THIS IS THE MAIN DEPLOYMENT TYPE AT THE MOMENT
+
+```sh
+gcloud app deploy --quiet --project cl-syd-ml-writers
+```
+
 
 
 ## GCE deployment

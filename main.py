@@ -5,6 +5,7 @@ from re import findall, escape, sub
 from modules.download_model import download_model
 from modules.generate import State, predict
 from flask_cors.decorator import cross_origin
+from typing import List
 
 BATCH_LENGTH = 8
 DEFAULT_LENGTH = 512
@@ -13,19 +14,15 @@ app = Flask(__name__)
 loaded_model: State = None
 
 
-class Check:
-    def __init__(self, found: bool = False, prediction: str = "no prediction"):
-        self.found: bool = found
-        self.sub_prediction: bool = prediction
-
-
-def load_model():
-    global loaded_model
-    if loaded_model is None:
-        download_model(bucket_name=getenv('BUCKET_NAME'), skip_if_exists=True)
-        loaded_model = gen.interact_model(
-            length=int(BATCH_LENGTH),
-            temperature=float(getenv("TEMPERATURE")))
+@app.route('/touch')
+@cross_origin()
+def touch_server():
+    '''
+    Can be optionally called from a frontend to pre-load the model
+    '''
+    # Ensure we have the global model in mem
+    load_model()
+    return "No Touch"
 
 
 @app.route('/predict')
@@ -48,8 +45,7 @@ def predict_from_seed() -> str:
                 "(optional) stop_count eg. 2")
 
     # Ensure we have the global model in mem
-    if loaded_model is None:
-        load_model()
+    load_model()
 
     # Clean up args for usewith defaults
     length: int = DEFAULT_LENGTH if r_length is None else int(r_length)
@@ -73,11 +69,17 @@ def predict_from_seed() -> str:
                                              stop_count)
             chars_check = check_stop_char(stop_chars, prediction, stop_count)
 
-            # prediction = chars_check.sub_prediction
-            # prediction = string_check.sub_prediction
+            # trim from end delimiter for our last iteration only
+            # last iter will have one of the following
+            if string_check:
+                tmp_prediction = stripFromLastOf([stop_string], tmp_prediction)
+            if chars_check:
+                tmp_prediction = stripFromLastOf([c for c in stop_chars],
+                                                 tmp_prediction)
+
             yield tmp_prediction
             # break if any met
-            if string_check.found or chars_check.found:
+            if string_check or chars_check:
                 break
 
     if bool(getenv("STREAM")):
@@ -86,32 +88,38 @@ def predict_from_seed() -> str:
         return "".join([x for x in generate()])
 
 
-def check_stop_string(stop_string: str, prediction: str, count: int) -> Check:
+def stripFromLastOf(patterns: List[str], string: str) -> str:
+    temp = string
+    for p in patterns:
+        temp = sub(escape(p)+".*?$", p, temp)
+    return temp
+
+
+def check_stop_string(stop_string: str, prediction: str, count: int) -> bool:
     '''
     Returns true if the requisite number of exact matches are found
     returns the string up to the last match
     '''
-    check = Check()
-    if (stop_string is not None and
-            len(findall(escape(stop_string), prediction)) >= count):
-        check.found = True
-        check.sub_prediction = sub(
-            stop_string+".*?$", stop_string, prediction)
-    return check
+    return (stop_string is not None and
+            len(findall(escape(stop_string), prediction)) >= count)
 
 
-def check_stop_char(stop_chars: str, prediction: str, count: int) -> Check:
+def check_stop_char(stop_chars: str, prediction: str, count: int) -> bool:
     '''
     Returns true if the requisite number of match on any char is found
     returns the string up to the last match
     '''
-    check = Check()
-    if (stop_chars is not None and
-            len(findall("["+stop_chars+"]", prediction)) >= count):
-        check.found = True
-        check.sub_prediction = sub(
-            "(["+stop_chars+"]).*?$", "\\1", prediction)
-    return check
+    return (stop_chars is not None and
+            len(findall("["+escape(stop_chars)+"]", prediction)) >= count)
+
+
+def load_model():
+    global loaded_model
+    if loaded_model is None:
+        download_model(bucket_name=getenv('BUCKET_NAME'), skip_if_exists=True)
+        loaded_model = gen.interact_model(
+            length=int(BATCH_LENGTH),
+            temperature=float(getenv("TEMPERATURE")))
 
 
 if __name__ == '__main__':
