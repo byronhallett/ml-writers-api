@@ -17,15 +17,15 @@ def download_model(bucket_name: str, skip_if_exists: bool = False):
 
     bucket = storage_client.get_bucket(bucket_name)
     for filename in FILES:
-        print("=== downloading " + filename, end='\r')
         blob = bucket.blob(filename)
         filepath = "./"+filename
         # save startup time if we already have the file
         if skip_if_exists and path.exists(filepath):
             print("=== Skipped ", filename)
             continue
+        print("=== downloading " + filename)
         blob.download_to_filename(filepath)
-        print("=== Finished downloading ", filename)
+        print("Done;", filename)
 
 
 if __name__ == "__main__":

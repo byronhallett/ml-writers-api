@@ -1,7 +1,7 @@
 from os import getenv
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 import modules.generate as gen
-from re import findall, escape
+from re import findall, escape, sub
 from modules.download_model import download_model
 from modules.generate import State, predict
 from flask_cors.decorator import cross_origin
@@ -52,40 +52,38 @@ def predict_from_seed() -> str:
         load_model()
 
     # Clean up args for usewith defaults
-    tmp_seed: str = r_seed
     length: int = DEFAULT_LENGTH if r_length is None else int(r_length)
     stop_chars: str = r_stop_chars
     stop_string: str = r_stop_string
     stop_count: int = 1 if r_stop_count is None else int(r_stop_count)
 
-    # iterate to produce results stopping when requested
-    prediction: str = ""
-    stop_reason: str = "length_met"
-    for _ in range(0, length + 1, BATCH_LENGTH):
-        # Make next prediction and update seed
-        tmp_prediction = predict(loaded_model, tmp_seed)
-        prediction += tmp_prediction
-        tmp_seed += tmp_prediction
+    def generate():
+        # iterate to produce results stopping when requested
+        tmp_seed: str = r_seed
+        prediction: str = ""
+        # stop_reason: str = "length_met"
+        for _ in range(0, length + 1, BATCH_LENGTH):
+            # Make next prediction and update seed
+            tmp_prediction = predict(loaded_model, tmp_seed)
+            prediction += tmp_prediction
+            tmp_seed += tmp_prediction
 
-        # check for stop conditions in the new prediction
-        string_check = check_stop_string(stop_string, prediction, stop_count)
-        chars_check = check_stop_char(stop_chars, prediction, stop_count)
+            # check for stop conditions in the new prediction
+            string_check = check_stop_string(stop_string, prediction,
+                                             stop_count)
+            chars_check = check_stop_char(stop_chars, prediction, stop_count)
 
-        # break if any met
-        if string_check.found:
-            stop_reason = "stop_string_found"
-            # prediction = string_check.sub_prediction
-            break
-        if chars_check.found:
-            stop_reason = "stop_char_found"
             # prediction = chars_check.sub_prediction
-            break
-    response = jsonify({
-        "seed": r_seed,
-        "prediction": prediction,
-        "reason": stop_reason
-    })
-    return response
+            # prediction = string_check.sub_prediction
+            yield tmp_prediction
+            # break if any met
+            if string_check.found or chars_check.found:
+                break
+
+    if bool(getenv("STREAM")):
+        return Response(generate())
+    else:
+        return "".join([x for x in generate()])
 
 
 def check_stop_string(stop_string: str, prediction: str, count: int) -> Check:
@@ -97,8 +95,8 @@ def check_stop_string(stop_string: str, prediction: str, count: int) -> Check:
     if (stop_string is not None and
             len(findall(escape(stop_string), prediction)) >= count):
         check.found = True
-        # check.sub_prediction = sub(
-        #     stop_string+".*?$", stop_string, prediction)
+        check.sub_prediction = sub(
+            stop_string+".*?$", stop_string, prediction)
     return check
 
 
@@ -111,8 +109,8 @@ def check_stop_char(stop_chars: str, prediction: str, count: int) -> Check:
     if (stop_chars is not None and
             len(findall("["+stop_chars+"]", prediction)) >= count):
         check.found = True
-        # check.sub_prediction = sub(
-        #     "(["+stop_chars+"]).*?$", "\\1", prediction)
+        check.sub_prediction = sub(
+            "(["+stop_chars+"]).*?$", "\\1", prediction)
     return check
 
 
