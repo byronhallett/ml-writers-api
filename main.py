@@ -1,5 +1,5 @@
 from os import getenv
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, Response
 import modules.generate as gen
 from re import findall, escape, sub
 from modules.download_model import download_model

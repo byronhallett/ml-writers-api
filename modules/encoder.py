@@ -11,14 +11,18 @@ def bytes_to_unicode():
     """
     Returns list of utf-8 byte and a corresponding list of unicode strings.
     The reversible bpe codes work on unicode strings.
-    This means you need a large # of unicode characters in your vocab if you want to avoid UNKs.
-    When you're at something like a 10B token dataset you end up needing around 5K for decent coverage.
+    This means you need a large # of unicode characters in your vocab
+    if you want to avoid UNKs.
+    When you're at something like a 10B token dataset you end up needing
+    around 5K for decent coverage.
     This is a signficant percentage of your normal, say, 32K bpe vocab.
-    To avoid that, we want lookup tables between utf-8 bytes and unicode strings.
+    To avoid that, we want lookup tables between
+    utf-8 bytes and unicode strings.
     And avoids mapping to whitespace/control characters the bpe code barfs on.
     """
-    bs = list(range(ord("!"), ord("~")+1))+list(range(ord("¡"),
-                                                      ord("¬")+1))+list(range(ord("®"), ord("ÿ")+1))
+    bs = (list(range(ord("!"), ord("~")+1)) +
+          list(range(ord("¡"), ord("¬")+1)) +
+          list(range(ord("®"), ord("ÿ")+1)))
     cs = bs[:]
     n = 0
     for b in range(2**8):
@@ -33,7 +37,8 @@ def bytes_to_unicode():
 def get_pairs(word):
     """Return set of symbol pairs in a word.
 
-    Word is represented as tuple of symbols (symbols being variable-length strings).
+    Word is represented as tuple of symbols
+    (symbols being variable-length strings).
     """
     pairs = set()
     prev_char = word[0]
@@ -53,9 +58,11 @@ class Encoder:
         self.bpe_ranks = dict(zip(bpe_merges, range(len(bpe_merges))))
         self.cache = {}
 
-        # Should haved added re.IGNORECASE so BPE merges can happen for capitalized versions of contractions
+        # Should haved added re.IGNORECASE so BPE merges can happen
+        #  for capitalized versions of contractions
         self.pat = re.compile(
-            r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""")
+            r"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| "
+            r"?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+")
 
     def bpe(self, token):
         if token in self.cache:
@@ -83,7 +90,9 @@ class Encoder:
                     new_word.extend(word[i:])
                     break
 
-                if word[i] == first and i < len(word)-1 and word[i+1] == second:
+                if (word[i] == first and
+                    i < len(word)-1 and
+                        word[i+1] == second):
                     new_word.append(first+second)
                     i += 2
                 else:

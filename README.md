@@ -25,6 +25,11 @@ TEMPERATURE=0.8
 
 For gcloud app engine, edit the **app.yaml**
 
+## GAE flex deployment
+
+## THIS IS THE MAIN DEPLOYMENT TYPE AT THE MOMENT
+
+
 ## GCE deployment
 Create a GCE instance based on the `ml-api-template` template
 then
