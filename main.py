@@ -41,7 +41,7 @@ def predict_from_seed() -> str:
                 "seed str eg. hows%20it%20going AND<br>"
                 "length int eg. 32 OR<br>"
                 "stop_chars str eg. ?!. OR<br>"
-                "stop_string str eg. <EOS>"
+                "stop_string str eg. <EOS><br>"
                 "(optional) stop_count eg. 2")
 
     # Ensure we have the global model in mem

@@ -1,7 +1,7 @@
 # EDIT PER DEPLOYMENT
-service: blurb-blocks-api
+service: this-is-your-life-api
 env_variables:
-  BUCKET_NAME: "blurb-blocks"
+  BUCKET_NAME: "this-is-your-life"
   TEMPERATURE: "0.8"
 
 runtime: python
