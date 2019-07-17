@@ -24,6 +24,7 @@ services:
       - BUCKET_NAME=blurb-blocks
       - TEMPERATURE=0.9
       - BATCH_LENGTH=8
+      - CUDA_VISIBLE_DEVICES=0
     networks:
       - default
     ports:
@@ -40,7 +41,8 @@ services:
     environment:
       - BUCKET_NAME=this-is-your-life
       - TEMPERATURE=0.9
-      - BATCH_LENGTH=32
+      - BATCH_LENGTH=128
+      - CUDA_VISIBLE_DEVICES=1
     networks:
       - default
     ports:
@@ -50,23 +52,6 @@ services:
       - "traefik.backend=machine-life"
       - "traefik.frontend.rule=PathPrefixStrip:/life"
 
-  chat-server:
-    runtime: nvidia
-    restart: always
-    image: asia.gcr.io/cl-syd-ml-writers/ml-api
-    environment:
-      - BUCKET_NAME=stacked-qa
-      - TEMPERATURE=0.9
-      - BATCH_LENGTH=16
-    networks:
-      - default
-    ports:
-      - "8002:8000"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.backend=machine-chat"
-      - "traefik.frontend.rule=PathPrefixStrip:/chat"
-
   blurbs-server-small:
     runtime: nvidia
     restart: always
@@ -75,11 +60,84 @@ services:
       - BUCKET_NAME=blurb-blocks-small
       - TEMPERATURE=0.9
       - BATCH_LENGTH=8
+      - CUDA_VISIBLE_DEVICES=2
+    networks:
+      - default
+    ports:
+      - "8002:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=machine-blurb-small"
+      - "traefik.frontend.rule=PathPrefixStrip:/blurb-small"
+
+  guardian-server:
+    runtime: nvidia
+    restart: always
+    image: asia.gcr.io/cl-syd-ml-writers/ml-api
+    environment:
+      - BUCKET_NAME=guardian-qa
+      - TEMPERATURE=0.9
+      - BATCH_LENGTH=16
+      - CUDA_VISIBLE_DEVICES=3
     networks:
       - default
     ports:
       - "8003:8000"
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=machine-blurb-small"
-      - "traefik.frontend.rule=PathPrefixStrip:/blurb-small"
+      - "traefik.backend=machine-guardian"
+      - "traefik.frontend.rule=PathPrefixStrip:/guardian"
+
+  stacked-server:
+    runtime: nvidia
+    restart: always
+    image: asia.gcr.io/cl-syd-ml-writers/ml-api
+    environment:
+      - BUCKET_NAME=stacked-qa
+      - TEMPERATURE=0.9
+      - BATCH_LENGTH=16
+      - CUDA_VISIBLE_DEVICES=0
+    networks:
+      - default
+    ports:
+      - "8004:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=machine-stacked"
+      - "traefik.frontend.rule=PathPrefixStrip:/stacked"
+
+  stacked-server-2:
+    runtime: nvidia
+    restart: always
+    image: asia.gcr.io/cl-syd-ml-writers/ml-api
+    environment:
+      - BUCKET_NAME=stacked-qa-2
+      - TEMPERATURE=0.9
+      - BATCH_LENGTH=16
+      - CUDA_VISIBLE_DEVICES=1
+    networks:
+      - default
+    ports:
+      - "8005:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=machine-stacked-2"
+      - "traefik.frontend.rule=PathPrefixStrip:/stacked-2"
+
+  stacked-server-3:
+    runtime: nvidia
+    restart: always
+    image: asia.gcr.io/cl-syd-ml-writers/ml-api
+    environment:
+      - BUCKET_NAME=stacked-qa-3
+      - TEMPERATURE=0.9
+      - BATCH_LENGTH=16
+      - CUDA_VISIBLE_DEVICES=2
+    networks:
+      - default
+    ports:
+      - "8006:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=machine-stacked-3"
+      - "traefik.frontend.rule=PathPrefixStrip:/stacked-3"

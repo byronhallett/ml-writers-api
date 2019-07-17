@@ -8,12 +8,12 @@ FILES = [
     'model.ckpt.data-00000-of-00001', 'model.ckpt.index',
     'model.ckpt.meta', 'vocab.bpe'
 ]
-# Instantiates a client
-storage_client = storage.Client()
 
 
 def download_model(bucket_name: str, skip_if_exists: bool = False):
     """Downloads model data from our bucket"""
+    # Instantiates a client
+    storage_client = storage.Client()
 
     bucket = storage_client.get_bucket(bucket_name)
     for filename in FILES:

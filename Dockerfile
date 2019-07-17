@@ -16,4 +16,4 @@ WORKDIR /gpt-2-server
 ADD . /gpt-2-server
 RUN pip3 install -r requirements.txt
 
-ENTRYPOINT [ "gunicorn", "-b 0.0.0.0:8000", "main:app" ]
+ENTRYPOINT [ "uwsgi", "--http", "0.0.0.0:8000", "--wsgi-file", "main.py", "--callable", "app", "--master", "--processes", "1", "--threads", "2"]
