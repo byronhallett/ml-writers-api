@@ -58,11 +58,7 @@ def predict_from_seed() -> str:
         tmp_seed: str = r_seed
         prediction: str = ""
         # stop_reason: str = "length_met"
-        if getenv("BATCH_LENGTH") is None:
-            batch = DEFAULT_BATCH_LENGTH
-        else:
-            batch = int(getenv("BATCH_LENGTH"))
-        for _ in range(0, length + 1, batch):
+        for _ in range(0, length + 1, batch_length()):
             # Make next prediction and update seed
             tmp_prediction = predict(loaded_model, tmp_seed)
             prediction += tmp_prediction
@@ -122,8 +118,15 @@ def load_model():
     if loaded_model is None:
         download_model(bucket_name=getenv('BUCKET_NAME'), skip_if_exists=True)
         loaded_model = gen.interact_model(
-            length=int(BATCH_LENGTH),
+            length=batch_length(),
             temperature=float(getenv("TEMPERATURE")))
+
+
+def batch_length() -> int:
+    if getenv("BATCH_LENGTH") is None:
+        return DEFAULT_BATCH_LENGTH
+    else:
+        return int(getenv("BATCH_LENGTH"))
 
 
 if __name__ == '__main__':
