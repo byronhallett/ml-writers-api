@@ -17,61 +17,69 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   blurbs-server:
+    runtime: nvidia
     restart: always
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
     environment:
       - BUCKET_NAME=blurb-blocks
       - TEMPERATURE=0.9
+      - BATCH_LENGTH=8
     networks:
       - default
     ports:
       - "8000:8000"
-    entrypoint:
-      - gunicorn
-      - -b
-      - 0.0.0.0:8000
-      - main:app
     labels:
       - "traefik.enable=true"
       - "traefik.backend=machine-blurb"
       - "traefik.frontend.rule=PathPrefixStrip:/blurb"
 
   life-server:
+    runtime: nvidia
     restart: always
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
     environment:
       - BUCKET_NAME=this-is-your-life
       - TEMPERATURE=0.9
+      - BATCH_LENGTH=32
     networks:
       - default
     ports:
       - "8001:8000"
-    entrypoint:
-      - gunicorn
-      - -b
-      - 0.0.0.0:8000
-      - main:app
     labels:
       - "traefik.enable=true"
       - "traefik.backend=machine-life"
       - "traefik.frontend.rule=PathPrefixStrip:/life"
 
   chat-server:
+    runtime: nvidia
     restart: always
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
     environment:
       - BUCKET_NAME=stacked-qa
       - TEMPERATURE=0.9
+      - BATCH_LENGTH=16
     networks:
       - default
     ports:
       - "8002:8000"
-    entrypoint:
-      - gunicorn
-      - -b
-      - 0.0.0.0:8000
-      - main:app
     labels:
       - "traefik.enable=true"
       - "traefik.backend=machine-chat"
       - "traefik.frontend.rule=PathPrefixStrip:/chat"
+
+  blurbs-server-small:
+    runtime: nvidia
+    restart: always
+    image: asia.gcr.io/cl-syd-ml-writers/ml-api
+    environment:
+      - BUCKET_NAME=blurb-blocks-small
+      - TEMPERATURE=0.9
+      - BATCH_LENGTH=8
+    networks:
+      - default
+    ports:
+      - "8003:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=machine-blurb-small"
+      - "traefik.frontend.rule=PathPrefixStrip:/blurb-small"

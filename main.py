@@ -7,7 +7,7 @@ from modules.generate import State, predict
 from flask_cors.decorator import cross_origin
 from typing import List
 
-BATCH_LENGTH = 8
+DEFAULT_BATCH_LENGTH = 8
 DEFAULT_LENGTH = 512
 
 app = Flask(__name__)
@@ -58,7 +58,11 @@ def predict_from_seed() -> str:
         tmp_seed: str = r_seed
         prediction: str = ""
         # stop_reason: str = "length_met"
-        for _ in range(0, length + 1, BATCH_LENGTH):
+        if getenv("BATCH_LENGTH") is None:
+            batch = DEFAULT_BATCH_LENGTH
+        else:
+            batch = int(getenv("BATCH_LENGTH"))
+        for _ in range(0, length + 1, batch):
             # Make next prediction and update seed
             tmp_prediction = predict(loaded_model, tmp_seed)
             prediction += tmp_prediction
