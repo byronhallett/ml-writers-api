@@ -13,8 +13,8 @@ FILES = [
 def download_model(bucket_name: str, skip_if_exists: bool = False):
     """Downloads model data from our bucket"""
     # Instantiates a client
-    storage_client = storage.Client()
-
+    storage_client = storage.Client.from_service_account_json(
+        'service_account.json')
     bucket = storage_client.get_bucket(bucket_name)
     for filename in FILES:
         blob = bucket.blob(filename)

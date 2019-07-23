@@ -180,4 +180,4 @@ model.ckpt*
 vocab.bpe
 
 # our service account file, find on gdrive
-cl-syd-ml-writers-*.json
+service_account.json

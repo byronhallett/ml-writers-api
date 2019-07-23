@@ -9,7 +9,7 @@ ENV NVIDIA_VISIBLE_DEVICES=all \
   NVIDIA_DRIVER_CAPABILITIES=compute,utility \
   NVIDIA_REQUIRE_CUDA="cuda>=8.0" \
   LANG=C.UTF-8 \
-  GOOGLE_APPLICATION_CREDENTIALS=/gpt-2-server/cl-syd-ml-writers-881b263b3fbb.json
+  GOOGLE_APPLICATION_CREDENTIALS=/gpt-2-server/service_account.json
 
 RUN mkdir /gpt-2-server
 WORKDIR /gpt-2-server

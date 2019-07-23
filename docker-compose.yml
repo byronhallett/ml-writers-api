@@ -23,7 +23,7 @@ services:
     environment:
       - BUCKET_NAME=blurb-blocks
       - TEMPERATURE=0.9
-      - BATCH_LENGTH=8
+      - BATCH_LENGTH=8=16
       - CUDA_VISIBLE_DEVICES=0
     networks:
       - default
@@ -34,24 +34,6 @@ services:
       - "traefik.backend=machine-blurb"
       - "traefik.frontend.rule=PathPrefixStrip:/blurb"
 
-  life-server:
-    runtime: nvidia
-    restart: always
-    image: asia.gcr.io/cl-syd-ml-writers/ml-api
-    environment:
-      - BUCKET_NAME=this-is-your-life
-      - TEMPERATURE=0.9
-      - BATCH_LENGTH=128
-      - CUDA_VISIBLE_DEVICES=1
-    networks:
-      - default
-    ports:
-      - "8001:8000"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.backend=machine-life"
-      - "traefik.frontend.rule=PathPrefixStrip:/life"
-
   blurbs-server-small:
     runtime: nvidia
     restart: always
@@ -59,16 +41,35 @@ services:
     environment:
       - BUCKET_NAME=blurb-blocks-small
       - TEMPERATURE=0.9
-      - BATCH_LENGTH=8
+      - BATCH_LENGTH=16
       - CUDA_VISIBLE_DEVICES=2
+    networks:
+      - default
+    ports:
+      - "8001:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=machine-blurb-small"
+      - "traefik.frontend.rule=PathPrefixStrip:/blurb-small"
+
+  life-server:
+    runtime: nvidia
+    restart: always
+    image: asia.gcr.io/cl-syd-ml-writers/ml-api
+    environment:
+      - BUCKET_NAME=this-is-your-life
+      - TEMPERATURE=0.9
+      - BATCH_LENGTH=256
+      - CUDA_VISIBLE_DEVICES=1
     networks:
       - default
     ports:
       - "8002:8000"
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=machine-blurb-small"
-      - "traefik.frontend.rule=PathPrefixStrip:/blurb-small"
+      - "traefik.backend=machine-life"
+      - "traefik.frontend.rule=PathPrefixStrip:/life"
+
 
   guardian-server:
     runtime: nvidia
@@ -76,7 +77,7 @@ services:
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
     environment:
       - BUCKET_NAME=guardian-qa
-      - TEMPERATURE=0.9
+      - TEMPERATURE=0.8
       - BATCH_LENGTH=16
       - CUDA_VISIBLE_DEVICES=3
     networks:
@@ -94,7 +95,7 @@ services:
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
     environment:
       - BUCKET_NAME=stacked-qa
-      - TEMPERATURE=0.9
+      - TEMPERATURE=0.8
       - BATCH_LENGTH=16
       - CUDA_VISIBLE_DEVICES=0
     networks:
@@ -112,8 +113,8 @@ services:
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
     environment:
       - BUCKET_NAME=stacked-qa-2
-      - TEMPERATURE=0.9
-      - BATCH_LENGTH=16
+      - TEMPERATURE=0.8
+      - BATCH_LENGTH=256
       - CUDA_VISIBLE_DEVICES=1
     networks:
       - default
@@ -130,7 +131,7 @@ services:
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
     environment:
       - BUCKET_NAME=stacked-qa-3
-      - TEMPERATURE=0.9
+      - TEMPERATURE=0.8
       - BATCH_LENGTH=16
       - CUDA_VISIBLE_DEVICES=2
     networks:
