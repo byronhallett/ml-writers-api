@@ -13,6 +13,7 @@ class State:
     '''
     A wrapper for tf related data, to simplify persistence
     '''
+
     def __init__(self, session: tf.Session, output,
                  encoder: Encoder, context):
         self.session: tf.Session = session
@@ -63,7 +64,7 @@ def interact_model(
 
     enc = get_encoder()
     hparams = default_hparams()
-    with open(os.path.join('./hparams.json')) as f:
+    with open(os.path.join('./model/hparams.json')) as f:
         hparams.override_from_dict(json.load(f))
 
     if length is None:
@@ -86,8 +87,7 @@ def interact_model(
     )
 
     saver = tf.train.Saver()
-    ckpt = tf.train.latest_checkpoint('.')
-    saver.restore(sess, ckpt)
+    saver.restore(sess, './model/model.ckpt')
 
     return State(
         session=sess,

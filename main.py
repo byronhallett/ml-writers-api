@@ -1,11 +1,13 @@
 from os import getenv
-from flask import Flask, request, Response
-import modules.generate as gen
-from re import findall, escape, sub
+from typing import List, Dict
+from re import findall, escape, sub, MULTILINE
+
+from flask import Flask, request, Response, Request
+from flask_cors.decorator import cross_origin
+
 from modules.download_model import download_model
 from modules.generate import State, predict
-from flask_cors.decorator import cross_origin
-from typing import List
+import modules.generate as gen
 
 DEFAULT_BATCH_LENGTH = 8
 DEFAULT_LENGTH = 512
@@ -14,7 +16,7 @@ app = Flask(__name__)
 loaded_model: State = None
 
 
-@app.route('/touch')
+@app.route('/touch', methods=["GET", "POST"])
 @cross_origin()
 def touch_server():
     '''
@@ -25,15 +27,18 @@ def touch_server():
     return "No Touch"
 
 
-@app.route('/predict')
+@app.route('/predict', methods=["POST"])
 @cross_origin()
 def predict_from_seed() -> str:
+    req: Request = request
+    data_json: Dict[str, str] = req.json
     # Get user args and complain if incorrect
-    r_seed = request.args.get('seed')
-    r_length = request.args.get('length')
-    r_stop_chars = request.args.get('stop_chars')
-    r_stop_string = request.args.get('stop_string')
-    r_stop_count = request.args.get('stop_count')
+    r_seed = data_json.get('seed')
+    r_length = data_json.get('length')
+    r_stop_chars = data_json.get('stop_chars')
+    r_stop_string = data_json.get('stop_string')
+    r_stop_count = data_json.get('stop_count')
+
     if (r_seed is None or
             (r_length is None and r_stop_chars is None and
              r_stop_string is None)):
@@ -91,7 +96,7 @@ def predict_from_seed() -> str:
 def stripFromLastOf(patterns: List[str], string: str) -> str:
     temp = string
     for p in patterns:
-        temp = sub(escape(p)+".*?$", p, temp)
+        temp = sub(escape(p)+".*?$", p, temp, flags=MULTILINE)
     return temp
 
 

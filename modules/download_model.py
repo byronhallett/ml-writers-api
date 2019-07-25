@@ -1,5 +1,5 @@
 from google.cloud import storage
-from os import getenv, path
+from os import getenv, path, mkdir
 
 
 # CONSTS
@@ -13,12 +13,13 @@ FILES = [
 def download_model(bucket_name: str, skip_if_exists: bool = False):
     """Downloads model data from our bucket"""
     # Instantiates a client
-    storage_client = storage.Client.from_service_account_json(
-        'service_account.json')
+    if not path.exists('./model'):
+        mkdir('./model')
+    storage_client = storage.Client()
     bucket = storage_client.get_bucket(bucket_name)
     for filename in FILES:
         blob = bucket.blob(filename)
-        filepath = "./"+filename
+        filepath = "./model/"+filename
         # save startup time if we already have the file
         if skip_if_exists and path.exists(filepath):
             print("=== Skipped ", filename)

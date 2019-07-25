@@ -4,10 +4,10 @@ services:
     image: traefik
     restart: always
     command: --web --docker --docker.domain=docker.localhost --docker.watch \
-      --logLevel=DEBUG \
+      --logLevel=INFO \
       --docker.exposedbydefault=false \
-      --entryPoints='Name:http Address::80' \
       --defaultEntryPoints='http'
+      --entryPoints='Name:http Address::80 WhiteList.SourceRange:10.152.0.48/16' \
     networks:
       - default
     ports:
@@ -16,15 +16,17 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  blurbs-server:
+  blurb:
     runtime: nvidia
     restart: always
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
     environment:
       - BUCKET_NAME=blurb-blocks
       - TEMPERATURE=0.9
-      - BATCH_LENGTH=8=16
+      - BATCH_LENGTH=16
       - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      - ./blurb:/gpt-2-server/model
     networks:
       - default
     ports:
@@ -34,7 +36,7 @@ services:
       - "traefik.backend=machine-blurb"
       - "traefik.frontend.rule=PathPrefixStrip:/blurb"
 
-  blurbs-server-small:
+  blurb-small-server:
     runtime: nvidia
     restart: always
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
@@ -43,6 +45,8 @@ services:
       - TEMPERATURE=0.9
       - BATCH_LENGTH=16
       - CUDA_VISIBLE_DEVICES=2
+    volumes:
+      - ./blurb-small:/gpt-2-server/model
     networks:
       - default
     ports:
@@ -52,7 +56,7 @@ services:
       - "traefik.backend=machine-blurb-small"
       - "traefik.frontend.rule=PathPrefixStrip:/blurb-small"
 
-  life-server:
+  life:
     runtime: nvidia
     restart: always
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
@@ -61,6 +65,8 @@ services:
       - TEMPERATURE=0.9
       - BATCH_LENGTH=256
       - CUDA_VISIBLE_DEVICES=1
+    volumes:
+      - ./life:/gpt-2-server/model
     networks:
       - default
     ports:
@@ -71,7 +77,7 @@ services:
       - "traefik.frontend.rule=PathPrefixStrip:/life"
 
 
-  guardian-server:
+  guardian:
     runtime: nvidia
     restart: always
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
@@ -80,6 +86,8 @@ services:
       - TEMPERATURE=0.8
       - BATCH_LENGTH=16
       - CUDA_VISIBLE_DEVICES=3
+    volumes:
+      - ./guardian:/gpt-2-server/model
     networks:
       - default
     ports:
@@ -89,7 +97,7 @@ services:
       - "traefik.backend=machine-guardian"
       - "traefik.frontend.rule=PathPrefixStrip:/guardian"
 
-  stacked-server:
+  stacked:
     runtime: nvidia
     restart: always
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
@@ -98,6 +106,8 @@ services:
       - TEMPERATURE=0.8
       - BATCH_LENGTH=16
       - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      - ./stacked:/gpt-2-server/model
     networks:
       - default
     ports:
@@ -107,15 +117,17 @@ services:
       - "traefik.backend=machine-stacked"
       - "traefik.frontend.rule=PathPrefixStrip:/stacked"
 
-  stacked-server-2:
+  stacked-2:
     runtime: nvidia
     restart: always
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
     environment:
       - BUCKET_NAME=stacked-qa-2
       - TEMPERATURE=0.8
-      - BATCH_LENGTH=256
+      - BATCH_LENGTH=32
       - CUDA_VISIBLE_DEVICES=1
+    volumes:
+      - ./stacked-2:/gpt-2-server/model
     networks:
       - default
     ports:
@@ -125,20 +137,22 @@ services:
       - "traefik.backend=machine-stacked-2"
       - "traefik.frontend.rule=PathPrefixStrip:/stacked-2"
 
-  stacked-server-3:
+  life-sentence:
     runtime: nvidia
     restart: always
     image: asia.gcr.io/cl-syd-ml-writers/ml-api
     environment:
-      - BUCKET_NAME=stacked-qa-3
-      - TEMPERATURE=0.8
-      - BATCH_LENGTH=16
-      - CUDA_VISIBLE_DEVICES=2
+      - BUCKET_NAME=this-is-your-life
+      - TEMPERATURE=0.9
+      - BATCH_LENGTH=36
+      - CUDA_VISIBLE_DEVICES=3
+    volumes:
+      - ./life-sentence:/gpt-2-server/model
     networks:
       - default
     ports:
       - "8006:8000"
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=machine-stacked-3"
-      - "traefik.frontend.rule=PathPrefixStrip:/stacked-3"
+      - "traefik.backend=machine-life-sentence"
+      - "traefik.frontend.rule=PathPrefixStrip:/life-sentence"
