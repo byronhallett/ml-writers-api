@@ -4,7 +4,7 @@ services:
     image: traefik
     restart: always
     command: --web --docker --docker.domain=docker.localhost --docker.watch \
-      --logLevel=INFO \
+      --logLevel=DEBUG \
       --docker.exposedbydefault=false \
       --defaultEntryPoints='http'
       --entryPoints='Name:http Address::80 WhiteList.SourceRange:10.152.0.48/16' \

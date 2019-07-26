@@ -74,7 +74,6 @@ def interact_model(
             "Can't get samples longer than window size: %s" % hparams.n_ctx)
 
     config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
     context = tf.placeholder(tf.int32, [batch_size, None])
     np.random.seed(seed)
