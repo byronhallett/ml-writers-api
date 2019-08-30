@@ -36,12 +36,27 @@ docker-compose up
 ```
 
 ## Licenses
+
+This repo is a modified version of https://github.com/openai/gpt-2
+
+Main changes:
+- Addition of uwsgi server (flask) to serve over http
+  - Includes optimisations
+    - Load models once into GPU mem on startup
+    - Make much smaller predictions on GPT2 to facilitate iterative prediction, streamed responses and allow internal context aware prediction limiting (users can specific strings to end prediction before response is returned)
+- Addtion of gcloud specific logic to download models from cloud storage buckets
+- Additon of the following files to configure host VM on gcloud:
+  - docker-compose.yml
+  - push_to_container_reg.sh
+  - push_to_vm.sh
+  - tmux.sh
+  - traefik.toml
+
+| Name        | Version  | Modified?  | License and URL
+| ----------- |:--------:|:--:| -----:|
 | google-cloud-storage | 1.16.1 | NO | [Apache 2.0](https://github.com/googleapis/google-cloud-python/blob/master/LICENSE) |
 | Flask | 1.1.1 | NO | [BSD-3-Clause ](https://palletsprojects.com/license/) |
 | Flask-Cors | 3.0.8 | NO | [MIT](https://github.com/corydolphin/flask-cors/blob/master/LICENSE) |
 | requests| 2.22.0 | NO | [Apache 2.0](https://pypi.org/project/requests/) |
 | uWSGI | 2.0.18 | NO | [GPLv2+](https://uwsgi-docs.readthedocs.io/en/latest/) |
 | tensorflow | 1.14.0 | NO | [Apache 2.0](https://github.com/tensorflow/tensorflow/blob/master/LICENSE) |
-
-
-
