@@ -10,6 +10,7 @@ services:
       - "8085:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/traefik.toml
 
   blurb:
     runtime: nvidia
@@ -20,7 +21,7 @@ services:
       - TEMPERATURE=0.9
       - BATCH_LENGTH=16
       - CUDA_VISIBLE_DEVICES=0
-    entrypoint: "uwsgi --http 0.0.0.0:8000 --wsgi-file main.py --callable app --processes 4 --threads 2"
+    entrypoint: "uwsgi --http 0.0.0.0:8000 --wsgi-file main.py --callable app --processes 2 --threads 2"
     volumes:
       - ./blurb:/gpt-2-server/model
     networks:
@@ -41,7 +42,7 @@ services:
       - TEMPERATURE=0.9
       - BATCH_LENGTH=16
       - CUDA_VISIBLE_DEVICES=1
-    entrypoint: "uwsgi --http 0.0.0.0:8000 --wsgi-file main.py --callable app --processes 4 --threads 2"
+    entrypoint: "uwsgi --http 0.0.0.0:8000 --wsgi-file main.py --callable app --processes 2 --threads 2"
     volumes:
       - ./blurb-small:/gpt-2-server/model
     networks:
@@ -62,7 +63,7 @@ services:
       - TEMPERATURE=0.8
       - BATCH_LENGTH=32
       - CUDA_VISIBLE_DEVICES=2
-    entrypoint: "uwsgi --http 0.0.0.0:8000 --wsgi-file main.py --callable app --processes 4 --threads 2"
+    entrypoint: "uwsgi --http 0.0.0.0:8000 --wsgi-file main.py --callable app --processes 2 --threads 2"
     volumes:
       - ./stacked:/gpt-2-server/model
     networks:
@@ -83,6 +84,7 @@ services:
       - TEMPERATURE=0.9
       - BATCH_LENGTH=36
       - CUDA_VISIBLE_DEVICES=3
+    entrypoint: "uwsgi --http 0.0.0.0:8000 --wsgi-file main.py --callable app --processes 2 --threads 2"
     volumes:
       - ./life-sentence:/gpt-2-server/model
     networks:
