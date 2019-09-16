@@ -2,21 +2,14 @@
 
 ## INSTALL
 
-locally
 ```sh
 # USE A PYTHON3 ENV
-pip install -r requirements.txt
-python main.py
-```
-
-## CONFIG
-
-Locally, add a .env with example
-```sh
 BUCKET_NAME=blurb-blocks
 TEMPERATURE=0.8
 BATCH_LENGTH=16
 CUDA_VISIBLE_DEVICES=0
+pip install -r requirements.txt
+python main.py
 ```
 
 ## GCE Docker container deployment
@@ -26,14 +19,21 @@ https://drive.google.com/open?id=1IYHRGzLtGaKB7WK1KyBwQ8x92dsj8nLT
 
 - To get the image to gcloud, run push_to_container.sh
 
-- after setting up a VM, install docker-compose there
+- Place the appropriate GPT2 data into a gcloud storage bucket in the same project
+
+- Set up a GCE VM on gcloud
+
 - run push_to_vm.sh, edit as required
 
-- ssh into container and run:
+- ssh into container eg `gcloud beta compute --project "cl-syd-ml-writers" ssh --zone "australia-southeast1-a" "ml-api-vm-1"`
 
-```sh
-docker-compose up
-```
+- edit docker-compose.yml so that each BUCKET_NAME variable points at the same buckets as above.
+
+- start the containers with `docker-compose up`
+
+## Updating models
+
+To update, SSH into the VM as above, locate the folder with the same name as the relevant model's bucket. Delete or rename that folder. Restart the docker containers by runnning `docker-compose restart`
 
 ## Licenses
 
